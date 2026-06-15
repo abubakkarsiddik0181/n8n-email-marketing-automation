@@ -1,0 +1,189 @@
+{
+  "name": "Email Marketing - Part 1 - Initial Outreach",
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Gmail List"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [224, 64],
+      "id": "d0bb3dc4-ee76-41f6-a8d9-c276ebfaea43",
+      "name": "Get row(s) in sheet"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Gmail }}",
+        "subject": "={{ $json.Name }}",
+        "emailType": "text",
+        "message": "",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [1120, -16],
+      "id": "1817c251-e0a8-4806-bd71-fa59fba0e8b8",
+      "name": "Send a message",
+      "webhookId": "4a1ecfd3-d59b-40bf-8ed4-0836fc8b9ade"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [896, 64],
+      "id": "f7486751-ede6-44c1-b16f-5549c083f4ea",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [1344, -16],
+      "id": "f25501a1-6cfe-4ba4-9d5b-e3a3a61ffa5e",
+      "name": "Date & Time"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1792, 64],
+      "id": "34bb52f3-a8aa-4442-ba44-7048aca60fc6",
+      "name": "Wait",
+      "webhookId": "79a519c4-8d02-443d-88bc-cc5ef48c751f"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "965b6160-e9ef-4c8e-b754-c65573746b1d",
+              "leftValue": "={{ $json[' Status'] }}",
+              "rightValue": "Sent",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [448, 64],
+      "id": "5edb86b6-1a65-4eae-9311-ae3a6cacff2b",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [672, 64],
+      "id": "65e76ef0-a51d-416c-9367-cc0ab05297fe",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [0, 64],
+      "id": "c18e5134-a476-4e99-a369-d2f23b199d8d",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Gmail List"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Loop Over Items').item.json.Name }}",
+            " Status": "Sent",
+            "Sending Time": "={{ $('Schedule Trigger').item.json.timestamp }}"
+          },
+          "matchingColumns": ["Name"],
+          "schema": [
+            {"id": "Name", "displayName": "Name", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true, "removed": false},
+            {"id": "Gmail", "displayName": "Gmail", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true},
+            {"id": " Status", "displayName": " Status", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true},
+            {"id": "Sending Time", "displayName": "Sending Time", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true}
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [1568, -16],
+      "id": "cbdd94f9-5e67-4bf1-b8a8-40ec06d01463",
+      "name": "Append or update row in sheet"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get row(s) in sheet": {"main": [[{"node": "Filter", "type": "main", "index": 0}]]},
+    "Send a message": {"main": [[{"node": "Date & Time", "type": "main", "index": 0}]]},
+    "Loop Over Items": {"main": [[], [{"node": "Send a message", "type": "main", "index": 0}]]},
+    "Date & Time": {"main": [[{"node": "Append or update row in sheet", "type": "main", "index": 0}]]},
+    "Wait": {"main": [[{"node": "Loop Over Items", "type": "main", "index": 0}]]},
+    "Filter": {"main": [[{"node": "Limit", "type": "main", "index": 0}]]},
+    "Limit": {"main": [[{"node": "Loop Over Items", "type": "main", "index": 0}]]},
+    "Schedule Trigger": {"main": [[{"node": "Get row(s) in sheet", "type": "main", "index": 0}]]},
+    "Append or update row in sheet": {"main": [[{"node": "Wait", "type": "main", "index": 0}]]}
+  },
+  "active": false,
+  "settings": {"executionOrder": "v1", "binaryMode": "separate", "availableInMCP": false},
+  "versionId": "17f9dd47-7604-4a57-9fcf-1142ea726923",
+  "meta": {"templateCredsSetupCompleted": true},
+  "nodeGroups": [],
+  "id": "GwzLZ8vYoNB8YZNO",
+  "tags": []
+}
