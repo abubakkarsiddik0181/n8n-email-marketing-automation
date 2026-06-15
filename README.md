@@ -1,5 +1,10 @@
 # Automated Email Marketing System with Follow-Up — n8n
 
+<img width="1207" height="550" alt="Email part1" src="https://github.com/user-attachments/assets/2f89e29d-ba4d-42e0-93a3-48b18f9f6c45" /> <img width="1208" height="551" alt="email part 2" src="https://github.com/user-attachments/assets/80eb6660-6504-4623-b5f4-6236f94b5365" />
+
+
+
+
 A cold email outreach system built with n8n that sends personalized emails to leads from a Google Sheet and automatically follows up after 3 days.
 
 ---
